@@ -14,7 +14,8 @@ import {
   BookOpen,
   LogOut,
   Calendar,
-  AlertCircle
+  AlertCircle,
+  UserPlus
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -176,6 +177,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 )}
               </div>
             )}
+
+            {/* Student Self-Service Onboarding Portal Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/onboard')}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-200 shadow-2xs"
+              title="Student Self-Service Profile Update & Onboarding"
+            >
+              <UserPlus className="w-3.5 h-3.5 text-blue-600" />
+              <span className="hidden md:inline">Student Onboard</span>
+            </button>
 
             {/* Faculty Presentation Demo Guide button */}
             <button

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { AppLayout } from './components/layout/AppLayout';
 
@@ -12,6 +12,9 @@ import { NotificationsPage } from './pages/parent/NotificationsPage';
 import { AnnouncementsPage } from './pages/parent/AnnouncementsPage';
 import { ProfilePage } from './pages/parent/ProfilePage';
 import { SettingsPage } from './pages/parent/SettingsPage';
+
+// Student Self-Service Onboarding Page
+import { StudentOnboardingPage } from './pages/onboard/StudentOnboardingPage';
 
 // Teacher Pages
 import { TeacherDashboard } from './pages/teacher/TeacherDashboard';
@@ -28,14 +31,25 @@ import { AdminExaminationsPage } from './pages/admin/AdminExaminationsPage';
 import { AdminAnnouncementsPage } from './pages/admin/AdminAnnouncementsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
+// Wrapper for root route to support ?tab=student-onboard query parameter
+function RootRouteHandler() {
+  const [searchParams] = useSearchParams();
+  if (searchParams.get('tab') === 'student-onboard') {
+    return <StudentOnboardingPage />;
+  }
+  return <ParentDashboard />;
+}
+
 export function App() {
   return (
     <AppProvider>
       <BrowserRouter>
         <Routes>
           <Route element={<AppLayout />}>
-            {/* Parent Routes */}
-            <Route path="/" element={<ParentDashboard />} />
+            {/* Parent Routes & Query Param Tab Support */}
+            <Route path="/" element={<RootRouteHandler />} />
+            <Route path="/onboard" element={<StudentOnboardingPage />} />
+            <Route path="/student-onboard" element={<StudentOnboardingPage />} />
             <Route path="/report-cards" element={<ReportCardsPage />} />
             <Route path="/attendance" element={<AttendancePage />} />
             <Route path="/leave-requests" element={<LeaveRequestsPage />} />

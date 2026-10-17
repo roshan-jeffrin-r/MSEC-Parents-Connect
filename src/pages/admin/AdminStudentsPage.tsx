@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
@@ -9,7 +10,9 @@ import {
   Mail,
   Phone,
   Building,
-  GraduationCap
+  GraduationCap,
+  ExternalLink,
+  UserPlus
 } from 'lucide-react';
 
 export const AdminStudentsPage: React.FC = () => {
@@ -42,6 +45,14 @@ export const AdminStudentsPage: React.FC = () => {
             Associate each student with verified parent accounts and monitor onboarding status
           </p>
         </div>
+
+        <Link
+          to="/onboard"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs self-start sm:self-auto"
+        >
+          <UserPlus className="w-4 h-4" />
+          <span>+ Onboard Student</span>
+        </Link>
       </div>
 
       {/* Search Bar */}
@@ -81,6 +92,7 @@ export const AdminStudentsPage: React.FC = () => {
                 <th className="py-3 px-4 w-28 text-center">Semester</th>
                 <th className="py-3 px-4">Linked Parent / Contact</th>
                 <th className="py-3 px-4 w-28 text-center">Parent Status</th>
+                <th className="py-3 px-4 w-36 text-center">Self-Service Link</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -122,6 +134,15 @@ export const AdminStudentsPage: React.FC = () => {
                       <Badge variant="success" size="sm">
                         Verified
                       </Badge>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Link
+                        to={`/onboard?regNo=${s.registerNumber}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold border border-blue-200 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>Onboard Link</span>
+                      </Link>
                     </td>
                   </tr>
                 );

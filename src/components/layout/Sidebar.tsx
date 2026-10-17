@@ -16,6 +16,7 @@ import {
   CheckSquare,
   Shield,
   HelpCircle,
+  UserPlus,
   X
 } from 'lucide-react';
 
@@ -64,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     },
     { label: 'Announcements', path: '/announcements', icon: Megaphone },
     { label: 'Student Profile', path: '/profile', icon: User },
+    { label: 'Student Onboarding', path: '/onboard', icon: UserPlus },
     { label: 'Settings', path: '/settings', icon: Settings }
   ];
 
