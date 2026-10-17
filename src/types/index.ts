@@ -10,6 +10,30 @@ export type ExamStatus = 'Draft' | 'Grading' | 'Published';
 
 export type NotificationCategory = 'attendance' | 'academic' | 'leave' | 'announcement' | 'general';
 
+export interface StaffAccount {
+  username: string;
+  password: string; // immutable credentials issued by Principal/HOD
+  fullName: string;
+  assignedClass: 'CSE-B' | 'ECE-A' | 'ALL_CSE' | string;
+  department: 'CSE' | 'ECE' | string;
+  designation: string;
+  email: string;
+  phoneNumber?: string;
+}
+
+export interface GoogleFormStudentRecord {
+  registerNumber: string;
+  fullName: string;
+  department: string;
+  className: string;
+  semester: number;
+  batch: string;
+  parentName: string;
+  relation: 'Father' | 'Mother' | 'Guardian' | string;
+  parentPhone: string;
+  parentEmail: string;
+}
+
 export interface Student {
   studentId: string;
   registerNumber: string;

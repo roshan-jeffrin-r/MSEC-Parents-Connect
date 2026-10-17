@@ -7,8 +7,43 @@ import {
   AttendanceRecord,
   LeaveRequest,
   Notification,
-  Announcement
+  Announcement,
+  StaffAccount,
+  GoogleFormStudentRecord
 } from '../types';
+
+export const FIXED_STAFF_ACCOUNTS: StaffAccount[] = [
+  {
+    username: 'kavitha.cse',
+    password: 'msec@cse26',
+    fullName: 'Dr. Kavitha Menon',
+    assignedClass: 'CSE-B',
+    department: 'CSE',
+    designation: 'Class Advisor & Associate Professor',
+    email: 'kavitha.cse@msec.edu.in',
+    phoneNumber: '+91 94440 11223'
+  },
+  {
+    username: 'ramesh.ece',
+    password: 'msec@ece26',
+    fullName: 'Prof. S. Ramesh',
+    assignedClass: 'ECE-A',
+    department: 'ECE',
+    designation: 'Class Advisor & Assistant Professor',
+    email: 'ramesh.ece@msec.edu.in',
+    phoneNumber: '+91 94440 44556'
+  },
+  {
+    username: 'hod.cse',
+    password: 'msec@hod26',
+    fullName: 'Dr. V. Subramanian',
+    assignedClass: 'ALL_CSE',
+    department: 'CSE',
+    designation: 'Head of Department (CSE) & Professor',
+    email: 'hod.cse@msec.edu.in',
+    phoneNumber: '+91 94440 99887'
+  }
+];
 
 export const INITIAL_STUDENTS: Student[] = [
   {
@@ -17,13 +52,13 @@ export const INITIAL_STUDENTS: Student[] = [
     fullName: 'Aarav Kumar',
     department: 'Computer Science and Engineering',
     departmentCode: 'CSE',
-    className: 'III Year CSE - B',
+    className: 'CSE-B',
     section: 'B',
     semester: 3,
     academicYear: '2026-2027',
     dob: '2005-08-14',
     bloodGroup: 'B+',
-    mentorName: 'Dr. K. Senthil Kumar',
+    mentorName: 'Dr. Kavitha Menon',
     parentIds: ['PAR-001'],
     profileImage: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=300',
     batch: '2025-2029',
@@ -36,13 +71,13 @@ export const INITIAL_STUDENTS: Student[] = [
     fullName: 'Ananya Kumar',
     department: 'Electronics and Communication Engineering',
     departmentCode: 'ECE',
-    className: 'I Year ECE - A',
+    className: 'ECE-A',
     section: 'A',
     semester: 1,
     academicYear: '2026-2027',
     dob: '2007-03-22',
     bloodGroup: 'O+',
-    mentorName: 'Prof. Lakshmi Narayanan',
+    mentorName: 'Prof. S. Ramesh',
     parentIds: ['PAR-001'],
     profileImage: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=300',
     batch: '2026-2030',
@@ -55,13 +90,13 @@ export const INITIAL_STUDENTS: Student[] = [
     fullName: 'Karthik V',
     department: 'Computer Science and Engineering',
     departmentCode: 'CSE',
-    className: 'III Year CSE - B',
+    className: 'CSE-B',
     section: 'B',
     semester: 3,
     academicYear: '2026-2027',
     dob: '2005-09-10',
     bloodGroup: 'A+',
-    mentorName: 'Dr. K. Senthil Kumar',
+    mentorName: 'Dr. Kavitha Menon',
     parentIds: ['PAR-002'],
     profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
     batch: '2025-2029',
@@ -73,13 +108,13 @@ export const INITIAL_STUDENTS: Student[] = [
     fullName: 'Priya M',
     department: 'Computer Science and Engineering',
     departmentCode: 'CSE',
-    className: 'III Year CSE - B',
+    className: 'CSE-B',
     section: 'B',
     semester: 3,
     academicYear: '2026-2027',
     dob: '2005-11-05',
     bloodGroup: 'O-',
-    mentorName: 'Dr. K. Senthil Kumar',
+    mentorName: 'Dr. Kavitha Menon',
     parentIds: ['PAR-003'],
     profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=300',
     batch: '2025-2029',
@@ -92,17 +127,53 @@ export const INITIAL_STUDENTS: Student[] = [
     fullName: 'Harish R',
     department: 'Computer Science and Engineering',
     departmentCode: 'CSE',
-    className: 'III Year CSE - B',
+    className: 'CSE-B',
     section: 'B',
     semester: 3,
     academicYear: '2026-2027',
     dob: '2005-06-18',
     bloodGroup: 'AB+',
-    mentorName: 'Dr. K. Senthil Kumar',
+    mentorName: 'Dr. Kavitha Menon',
     parentIds: ['PAR-004'],
     profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
     batch: '2025-2029',
     hostelDayScholar: 'Hostelite'
+  },
+  {
+    studentId: 'STU-006',
+    registerNumber: 'ECE2026012',
+    fullName: 'Vignesh S',
+    department: 'Electronics and Communication Engineering',
+    departmentCode: 'ECE',
+    className: 'ECE-A',
+    section: 'A',
+    semester: 1,
+    academicYear: '2026-2027',
+    dob: '2007-01-15',
+    bloodGroup: 'B+',
+    mentorName: 'Prof. S. Ramesh',
+    parentIds: ['PAR-005'],
+    profileImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300',
+    batch: '2026-2030',
+    hostelDayScholar: 'Day Scholar'
+  },
+  {
+    studentId: 'STU-007',
+    registerNumber: 'ECE2026024',
+    fullName: 'Deepa K',
+    department: 'Electronics and Communication Engineering',
+    departmentCode: 'ECE',
+    className: 'ECE-A',
+    section: 'A',
+    semester: 1,
+    academicYear: '2026-2027',
+    dob: '2007-04-18',
+    bloodGroup: 'A+',
+    mentorName: 'Prof. S. Ramesh',
+    parentIds: ['PAR-006'],
+    profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+    batch: '2026-2030',
+    hostelDayScholar: 'Day Scholar'
   }
 ];
 
@@ -116,21 +187,96 @@ export const INITIAL_PARENTS: Parent[] = [
     linkedStudentIds: ['STU-001', 'STU-002'],
     address: 'No. 42, 3rd Main Road, Chromepet, Chennai - 600044',
     occupation: 'Senior IT Consultant'
+  },
+  {
+    parentId: 'PAR-002',
+    fullName: 'Suresh V',
+    relationship: 'Father',
+    email: 'suresh.v@gmail.com',
+    phoneNumber: '+91 98401 88888',
+    linkedStudentIds: ['STU-003'],
+    address: 'Plot 12, Gandhi Nagar, Adyar, Chennai - 600020',
+    occupation: 'Civil Engineer'
+  },
+  {
+    parentId: 'PAR-003',
+    fullName: 'Meena M',
+    relationship: 'Mother',
+    email: 'meena.m@gmail.com',
+    phoneNumber: '+91 98401 77777',
+    linkedStudentIds: ['STU-004'],
+    address: 'No. 8, 2nd Cross Street, Anna Nagar, Chennai - 600040',
+    occupation: 'Senior Bank Manager'
+  },
+  {
+    parentId: 'PAR-004',
+    fullName: 'Raghavan R',
+    relationship: 'Father',
+    email: 'raghavan.r@gmail.com',
+    phoneNumber: '+91 98401 66666',
+    linkedStudentIds: ['STU-005'],
+    address: 'No. 15, Sannathi Street, Mylapore, Chennai - 600004',
+    occupation: 'Chartered Accountant'
+  },
+  {
+    parentId: 'PAR-005',
+    fullName: 'Shanmugam S',
+    relationship: 'Father',
+    email: 'shanmugam.s@gmail.com',
+    phoneNumber: '+91 98401 55555',
+    linkedStudentIds: ['STU-006'],
+    address: 'No. 29, Station Road, West Mambalam, Chennai - 600033',
+    occupation: 'Chief Electrical Officer (Retd)'
+  },
+  {
+    parentId: 'PAR-006',
+    fullName: 'Kalyani K',
+    relationship: 'Mother',
+    email: 'kalyani.k@gmail.com',
+    phoneNumber: '+91 98401 44444',
+    linkedStudentIds: ['STU-007'],
+    address: 'No. 5, Rajaji Street, T. Nagar, Chennai - 600017',
+    occupation: 'Professor of Physics'
   }
 ];
 
 export const INITIAL_TEACHERS: Teacher[] = [
   {
     teacherId: 'TCH-001',
-    fullName: 'Dr. K. Senthil Kumar',
+    fullName: 'Dr. Kavitha Menon',
     designation: 'Associate Professor & Class Advisor',
     department: 'Computer Science and Engineering',
-    email: 'senthilkumar.k@msec.edu.in',
-    phoneNumber: '+91 94440 98765',
-    assignedClasses: ['III Year CSE - B', 'II Year CSE - A'],
+    email: 'kavitha.cse@msec.edu.in',
+    phoneNumber: '+91 94440 11223',
+    assignedClasses: ['CSE-B'],
     assignedSubjects: [
-      { subjectCode: 'CS3301', subjectName: 'Data Structures', className: 'III Year CSE - B' },
-      { subjectCode: 'CS3381', subjectName: 'Data Structures Laboratory', className: 'III Year CSE - B' }
+      { subjectCode: 'CS3301', subjectName: 'Data Structures', className: 'CSE-B' },
+      { subjectCode: 'CS3381', subjectName: 'Data Structures Laboratory', className: 'CSE-B' }
+    ]
+  },
+  {
+    teacherId: 'TCH-002',
+    fullName: 'Prof. S. Ramesh',
+    designation: 'Assistant Professor & Class Advisor',
+    department: 'Electronics and Communication Engineering',
+    email: 'ramesh.ece@msec.edu.in',
+    phoneNumber: '+91 94440 44556',
+    assignedClasses: ['ECE-A'],
+    assignedSubjects: [
+      { subjectCode: 'EC3351', subjectName: 'Control Systems', className: 'ECE-A' },
+      { subjectCode: 'EC3361', subjectName: 'Electronic Circuits Laboratory', className: 'ECE-A' }
+    ]
+  },
+  {
+    teacherId: 'TCH-003',
+    fullName: 'Dr. V. Subramanian',
+    designation: 'Head of Department & Professor',
+    department: 'Computer Science and Engineering',
+    email: 'hod.cse@msec.edu.in',
+    phoneNumber: '+91 94440 99887',
+    assignedClasses: ['ALL_CSE', 'CSE-B', 'CSE-A'],
+    assignedSubjects: [
+      { subjectCode: 'CS3351', subjectName: 'Digital Principles & Computer Organization', className: 'CSE-B' }
     ]
   }
 ];
@@ -1035,10 +1181,27 @@ export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
 
 export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
   {
+    requestId: 'LR-2026-105',
+    studentId: 'STU-002',
+    studentName: 'Ananya Kumar',
+    className: 'ECE-A',
+    submittedBy: 'Rajesh Kumar (Father)',
+    parentEmail: 'rajesh.kumar@parent.msec.edu',
+    startDate: '2026-10-26',
+    endDate: '2026-10-27',
+    totalDays: 2,
+    leaveType: 'Medical',
+    reason: 'Dental surgery and prescribed two days bed rest.',
+    documentName: 'Dental_Specialist_Prescription.pdf',
+    status: 'Pending',
+    createdAt: '2026-10-17 09:30 AM',
+    updatedAt: '2026-10-17 09:30 AM'
+  },
+  {
     requestId: 'LR-2026-102',
     studentId: 'STU-001',
     studentName: 'Aarav Kumar',
-    className: 'III Year CSE - B',
+    className: 'CSE-B',
     submittedBy: 'Rajesh Kumar (Father)',
     parentEmail: 'rajesh.kumar@parent.msec.edu',
     startDate: '2026-10-24',
@@ -1208,5 +1371,101 @@ export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
     priority: 'Normal',
     publishedAt: '2026-10-02 03:00 PM',
     publishedBy: 'Head of Placement & Training'
+  }
+];
+
+export const SAMPLE_GOOGLE_FORM_CSV = `registerNumber,fullName,department,className,semester,batch,parentName,relation,parentPhone,parentEmail
+CSE2026001,Aarav Kumar,Computer Science and Engineering,CSE-B,3,2025-2029,Rajesh Kumar,Father,9840123456,rajesh.kumar@parent.msec.edu
+ECE2026045,Ananya Kumar,Electronics and Communication Engineering,ECE-A,1,2026-2030,Rajesh Kumar,Father,9840123456,rajesh.kumar@parent.msec.edu
+CSE2026002,Karthik V,Computer Science and Engineering,CSE-B,3,2025-2029,Suresh V,Father,9840188888,suresh.v@gmail.com
+CSE2026003,Priya M,Computer Science and Engineering,CSE-B,3,2025-2029,Meena M,Mother,9840177777,meena.m@gmail.com
+CSE2026004,Harish R,Computer Science and Engineering,CSE-B,3,2025-2029,Raghavan R,Father,9840166666,raghavan.r@gmail.com
+ECE2026012,Vignesh S,Electronics and Communication Engineering,ECE-A,1,2026-2030,Shanmugam S,Father,9840155555,shanmugam.s@gmail.com
+ECE2026024,Deepa K,Electronics and Communication Engineering,ECE-A,1,2026-2030,Kalyani K,Mother,9840144444,kalyani.k@gmail.com`;
+
+export const SAMPLE_GOOGLE_FORM_JSON: GoogleFormStudentRecord[] = [
+  {
+    registerNumber: 'CSE2026001',
+    fullName: 'Aarav Kumar',
+    department: 'Computer Science and Engineering',
+    className: 'CSE-B',
+    semester: 3,
+    batch: '2025-2029',
+    parentName: 'Rajesh Kumar',
+    relation: 'Father',
+    parentPhone: '9840123456',
+    parentEmail: 'rajesh.kumar@parent.msec.edu'
+  },
+  {
+    registerNumber: 'ECE2026045',
+    fullName: 'Ananya Kumar',
+    department: 'Electronics and Communication Engineering',
+    className: 'ECE-A',
+    semester: 1,
+    batch: '2026-2030',
+    parentName: 'Rajesh Kumar',
+    relation: 'Father',
+    parentPhone: '9840123456',
+    parentEmail: 'rajesh.kumar@parent.msec.edu'
+  },
+  {
+    registerNumber: 'CSE2026002',
+    fullName: 'Karthik V',
+    department: 'Computer Science and Engineering',
+    className: 'CSE-B',
+    semester: 3,
+    batch: '2025-2029',
+    parentName: 'Suresh V',
+    relation: 'Father',
+    parentPhone: '9840188888',
+    parentEmail: 'suresh.v@gmail.com'
+  },
+  {
+    registerNumber: 'CSE2026003',
+    fullName: 'Priya M',
+    department: 'Computer Science and Engineering',
+    className: 'CSE-B',
+    semester: 3,
+    batch: '2025-2029',
+    parentName: 'Meena M',
+    relation: 'Mother',
+    parentPhone: '9840177777',
+    parentEmail: 'meena.m@gmail.com'
+  },
+  {
+    registerNumber: 'CSE2026004',
+    fullName: 'Harish R',
+    department: 'Computer Science and Engineering',
+    className: 'CSE-B',
+    semester: 3,
+    batch: '2025-2029',
+    parentName: 'Raghavan R',
+    relation: 'Father',
+    parentPhone: '9840166666',
+    parentEmail: 'raghavan.r@gmail.com'
+  },
+  {
+    registerNumber: 'ECE2026012',
+    fullName: 'Vignesh S',
+    department: 'Electronics and Communication Engineering',
+    className: 'ECE-A',
+    semester: 1,
+    batch: '2026-2030',
+    parentName: 'Shanmugam S',
+    relation: 'Father',
+    parentPhone: '9840155555',
+    parentEmail: 'shanmugam.s@gmail.com'
+  },
+  {
+    registerNumber: 'ECE2026024',
+    fullName: 'Deepa K',
+    department: 'Electronics and Communication Engineering',
+    className: 'ECE-A',
+    semester: 1,
+    batch: '2026-2030',
+    parentName: 'Kalyani K',
+    relation: 'Mother',
+    parentPhone: '9840144444',
+    parentEmail: 'kalyani.k@gmail.com'
   }
 ];

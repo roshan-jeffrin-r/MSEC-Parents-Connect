@@ -4,6 +4,7 @@ import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { Footer } from './Footer';
 import { DemoGuideModal } from '../demo/DemoGuideModal';
+import { ParentAutoLoginModal } from '../../pages/onboard/ParentAutoLoginModal';
 
 export const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,6 +25,7 @@ export const AppLayout: React.FC = () => {
       </div>
 
       <DemoGuideModal />
+      <ParentAutoLoginModal />
     </div>
   );
 };

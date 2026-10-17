@@ -10,11 +10,13 @@ import {
   GraduationCap,
   Menu,
   Check,
-  Shield,
   BookOpen,
   LogOut,
   Calendar,
-  AlertCircle
+  AlertCircle,
+  FileSpreadsheet,
+  KeyRound,
+  Smartphone
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -33,8 +35,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     markNotificationAsRead,
     markAllNotificationsAsRead,
     currentParent,
-    currentTeacher,
-    setIsDemoGuideOpen
+    currentStaff,
+    staffLogout,
+    setIsDemoGuideOpen,
+    setIsParentLoginModalOpen
   } = useApp();
 
   const navigate = useNavigate();
@@ -48,7 +52,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
 
   const unreadNotifications = notifications.filter((n) => !n.readStatus);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
@@ -68,9 +71,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const handleRoleChange = (newRole: UserRole) => {
     setRole(newRole);
     setShowRoleMenu(false);
-    if (newRole === 'parent') navigate('/');
-    else if (newRole === 'teacher') navigate('/teacher');
-    else if (newRole === 'admin') navigate('/admin');
+    if (newRole === 'parent') {
+      navigate('/');
+    } else if (newRole === 'teacher') {
+      if (currentStaff) {
+        navigate('/teacher');
+      } else {
+        navigate('/teacher/login');
+      }
+    }
   };
 
   return (
@@ -91,8 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
             <div
               onClick={() => {
                 if (role === 'parent') navigate('/');
-                else if (role === 'teacher') navigate('/teacher');
-                else navigate('/admin');
+                else navigate(currentStaff ? '/teacher' : '/teacher/login');
               }}
               className="flex items-center gap-3 cursor-pointer group select-none"
             >
@@ -118,70 +126,136 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
 
           {/* Center/Right Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Multi-Student Switcher (Only visible in Parent role) */}
+            {/* Workflow 2: Parent Identifier / Sibling Switcher (Visible in Parent role) */}
             {role === 'parent' && (
-              <div className="relative" ref={studentRef}>
+              <div className="flex items-center gap-2">
+                {/* Sibling Switcher Dropdown */}
+                <div className="relative" ref={studentRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowStudentMenu(!showStudentMenu)}
+                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium text-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    aria-expanded={showStudentMenu}
+                  >
+                    <img
+                      src={currentStudent.profileImage}
+                      alt={currentStudent.fullName}
+                      className="w-5 h-5 rounded-full object-cover ring-1 ring-slate-300"
+                    />
+                    <div className="text-left hidden sm:block">
+                      <span className="font-semibold block truncate max-w-[110px]">{currentStudent.fullName}</span>
+                      <span className="text-[10px] text-slate-500 block leading-none">{currentStudent.className}</span>
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                  </button>
+
+                  {showStudentMenu && (
+                    <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-64 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                      <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        <span>Linked Children</span>
+                        <span className="text-[10px] text-blue-600">{currentParent?.fullName}</span>
+                      </div>
+                      {students
+                        .filter((s) => currentParent?.linkedStudentIds?.includes(s.studentId) || s.studentId === 'STU-001' || s.studentId === 'STU-002')
+                        .slice(0, 4)
+                        .map((s) => (
+                          <button
+                            key={s.studentId}
+                            type="button"
+                            onClick={() => {
+                              setSelectedStudentId(s.studentId);
+                              setShowStudentMenu(false);
+                            }}
+                            className={`w-full px-3 py-2 flex items-center justify-between text-left text-xs transition-colors ${
+                              s.studentId === selectedStudentId ? 'bg-blue-50 text-blue-900 font-semibold' : 'hover:bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <img
+                                src={s.profileImage}
+                                alt={s.fullName}
+                                className="w-7 h-7 rounded-full object-cover ring-1 ring-slate-200"
+                              />
+                              <div>
+                                <p className="font-medium">{s.fullName}</p>
+                                <p className="text-[11px] text-slate-500">
+                                  {s.registerNumber} • {s.className}
+                                </p>
+                              </div>
+                            </div>
+                            {s.studentId === selectedStudentId && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+                          </button>
+                        ))}
+
+                      <div className="border-t border-slate-100 p-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowStudentMenu(false);
+                            setIsParentLoginModalOpen(true);
+                          }}
+                          className="w-full py-1.5 text-center text-[11px] font-semibold text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <Smartphone className="w-3.5 h-3.5" />
+                          <span>Switch Parent Account (Phone/Email)</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Auto-Login Modal trigger button */}
                 <button
                   type="button"
-                  onClick={() => setShowStudentMenu(!showStudentMenu)}
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium text-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600"
-                  aria-expanded={showStudentMenu}
+                  onClick={() => setIsParentLoginModalOpen(true)}
+                  className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors"
                 >
-                  <img
-                    src={currentStudent.profileImage}
-                    alt={currentStudent.fullName}
-                    className="w-5 h-5 rounded-full object-cover ring-1 ring-slate-300"
-                  />
-                  <div className="text-left hidden sm:block">
-                    <span className="font-semibold block truncate max-w-[110px]">{currentStudent.fullName}</span>
-                    <span className="text-[10px] text-slate-500 block leading-none">{currentStudent.className}</span>
-                  </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                  <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Parent Auto-Login</span>
                 </button>
-
-                {showStudentMenu && (
-                  <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-64 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      Select Linked Student
-                    </div>
-                    {students.slice(0, 2).map((s) => (
-                      <button
-                        key={s.studentId}
-                        type="button"
-                        onClick={() => {
-                          setSelectedStudentId(s.studentId);
-                          setShowStudentMenu(false);
-                        }}
-                        className={`w-full px-3 py-2 flex items-center justify-between text-left text-xs transition-colors ${
-                          s.studentId === selectedStudentId ? 'bg-blue-50 text-blue-900 font-semibold' : 'hover:bg-slate-50 text-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <img
-                            src={s.profileImage}
-                            alt={s.fullName}
-                            className="w-7 h-7 rounded-full object-cover ring-1 ring-slate-200"
-                          />
-                          <div>
-                            <p className="font-medium">{s.fullName}</p>
-                            <p className="text-[11px] text-slate-500">
-                              {s.registerNumber} • {s.departmentCode} Sem {s.semester}
-                            </p>
-                          </div>
-                        </div>
-                        {s.studentId === selectedStudentId && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
+
+            {/* Workflow 1: If in Teacher role, show active staff & class scoping */}
+            {role === 'teacher' && currentStaff && (
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{currentStaff.fullName}</span>
+                  <span className="font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded text-[10px]">
+                    {currentStaff.assignedClass}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    staffLogout();
+                    navigate('/teacher/login');
+                  }}
+                  className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  title="Sign out of staff session"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Google Form Sorter shortcut */}
+            <button
+              type="button"
+              onClick={() => navigate('/onboard/sync')}
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors"
+              title="Import Google Form CSV or JSON to auto-sort and link siblings"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Google Form Sync</span>
+            </button>
 
             {/* Faculty Presentation Demo Guide button */}
             <button
               type="button"
               onClick={() => setIsDemoGuideOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white shadow-xs transition-all hover:shadow focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-1"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white shadow-xs transition-all hover:shadow focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
               <span className="hidden sm:inline">Faculty Demo Guide</span>
@@ -286,7 +360,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
               )}
             </div>
 
-            {/* Role Switcher Menu */}
+            {/* Strict Two-Role Portal Switcher (Admin Switcher Hidden as requested) */}
             <div className="relative" ref={roleRef}>
               <button
                 type="button"
@@ -296,14 +370,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
               >
                 <div
                   className={`w-2 h-2 rounded-full ${
-                    role === 'parent'
-                      ? 'bg-blue-600'
-                      : role === 'teacher'
-                      ? 'bg-emerald-600'
-                      : 'bg-purple-600'
+                    role === 'parent' ? 'bg-blue-600' : 'bg-emerald-600'
                   }`}
                 />
-                <span className="capitalize">{role} Portal</span>
+                <span className="capitalize">{role === 'teacher' ? 'Faculty Portal' : 'Parent Portal'}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
@@ -311,7 +381,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 <div className="absolute right-0 mt-2 w-64 rounded-xl bg-white shadow-xl border border-slate-200 py-1.5 z-50">
                   <div className="px-3 py-1.5 border-b border-slate-100">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Switch Role for Demonstration
+                      Switch Portal View
                     </span>
                   </div>
 
@@ -325,8 +395,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                   >
                     <UserCheck className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-xs font-medium">Parent: {currentParent.fullName}</p>
-                      <p className="text-[11px] text-slate-500">View child report cards, attendance & submit leaves</p>
+                      <p className="text-xs font-medium">Parent Portal</p>
+                      <p className="text-[11px] text-slate-500">
+                        {currentParent ? currentParent.fullName : 'Rajesh Kumar'} (Passwordless Auto-Login)
+                      </p>
                     </div>
                   </button>
 
@@ -338,25 +410,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                       role === 'teacher' ? 'bg-emerald-50 text-emerald-900 font-semibold' : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <BookOpen className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                    <KeyRound className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-xs font-medium">Teacher: {currentTeacher.fullName}</p>
-                      <p className="text-[11px] text-slate-500">Record attendance, enter marks, approve leaves</p>
-                    </div>
-                  </button>
-
-                  {/* Admin Option */}
-                  <button
-                    type="button"
-                    onClick={() => handleRoleChange('admin')}
-                    className={`w-full px-3 py-2 text-left flex items-start gap-2.5 transition-colors ${
-                      role === 'admin' ? 'bg-purple-50 text-purple-900 font-semibold' : 'hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <Shield className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium">Admin: Dr. R. Ramanathan</p>
-                      <p className="text-[11px] text-slate-500">System metrics, examinations & announcements</p>
+                      <p className="text-xs font-medium">Faculty / Staff Portal</p>
+                      <p className="text-[11px] text-slate-500">
+                        {currentStaff ? `${currentStaff.fullName} (${currentStaff.assignedClass})` : 'Protected Staff Login Required'}
+                      </p>
                     </div>
                   </button>
                 </div>
