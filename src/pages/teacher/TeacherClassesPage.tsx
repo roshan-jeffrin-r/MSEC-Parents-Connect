@@ -155,7 +155,7 @@ export const TeacherClassesPage: React.FC = () => {
             <tbody className="divide-y divide-slate-100">
               {filteredStudents.length > 0 ? (
                 filteredStudents.map((s, idx) => {
-                  const parent = parents.find((p) => p.studentIds.includes(s.studentId));
+                  const parent = parents.find((p) => p.linkedStudentIds.includes(s.studentId));
                   return (
                     <tr key={s.studentId} className="hover:bg-slate-50 transition-colors">
                       <td className="py-3 px-4 text-center text-slate-400 font-medium">{idx + 1}</td>
@@ -181,7 +181,7 @@ export const TeacherClassesPage: React.FC = () => {
                         {parent ? (
                           <>
                             <span className="block font-medium text-slate-800">
-                              {parent.fullName} ({parent.relation})
+                              {parent.fullName} ({parent.relationship})
                             </span>
                             <span className="text-[11px] text-slate-500 font-mono">
                               {parent.phoneNumber}
