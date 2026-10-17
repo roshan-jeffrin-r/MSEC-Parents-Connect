@@ -21,6 +21,10 @@ import { TeacherMarksPage } from './pages/teacher/TeacherMarksPage';
 import { TeacherLeaveReviewPage } from './pages/teacher/TeacherLeaveReviewPage';
 import { TeacherProfilePage } from './pages/teacher/TeacherProfilePage';
 
+// Onboarding & Staff Login Pages
+import { StaffLoginPage } from './pages/onboard/StaffLoginPage';
+import { GoogleFormSyncPage } from './pages/onboard/GoogleFormSyncPage';
+
 // Admin Pages
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminStudentsPage } from './pages/admin/AdminStudentsPage';
@@ -44,13 +48,18 @@ export function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
 
-            {/* Teacher Routes */}
+            {/* Teacher / Staff Authentication & Pages */}
+            <Route path="/teacher/login" element={<StaffLoginPage />} />
+            <Route path="/onboard/staff-login" element={<StaffLoginPage />} />
             <Route path="/teacher" element={<TeacherDashboard />} />
             <Route path="/teacher/classes" element={<TeacherClassesPage />} />
             <Route path="/teacher/attendance" element={<TeacherAttendancePage />} />
             <Route path="/teacher/marks" element={<TeacherMarksPage />} />
             <Route path="/teacher/leave-requests" element={<TeacherLeaveReviewPage />} />
             <Route path="/teacher/profile" element={<TeacherProfilePage />} />
+
+            {/* Google Form Sync & Sibling Linker */}
+            <Route path="/onboard/sync" element={<GoogleFormSyncPage />} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />

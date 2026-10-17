@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApp, matchesAssignedClass } from '../../context/AppContext';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
@@ -12,24 +13,38 @@ import {
   FileText,
   User,
   Calendar,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
 
 export const TeacherLeaveReviewPage: React.FC = () => {
-  const { leaveRequests, reviewLeaveRequest, currentTeacher } = useApp();
+  const { leaveRequests, reviewLeaveRequest, currentStaff } = useApp();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!currentStaff) {
+      navigate('/teacher/login');
+    }
+  }, [currentStaff, navigate]);
 
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
   const [decision, setDecision] = useState<LeaveStatus>('Approved');
   const [remarks, setRemarks] = useState<string>('');
   const [savedBanner, setSavedBanner] = useState<string>('');
 
+  if (!currentStaff) return null;
+
+  const scopedRequests = leaveRequests.filter((req) =>
+    matchesAssignedClass(req.className, currentStaff.assignedClass)
+  );
+
   const handleOpenReview = (req: LeaveRequest, action: LeaveStatus) => {
     setSelectedRequest(req);
     setDecision(action);
     setRemarks(
       action === 'Approved'
-        ? 'Sanctioned. Advised the student to collect notes for Data Structures from peers upon return.'
-        : 'Request declined due to scheduled internal assessment examination.'
+        ? 'Sanctioned. Advised the student to collect notes and complete laboratory assignments upon return.'
+        : 'Request declined due to scheduled assessments and mandatory lab attendance.'
     );
   };
 
@@ -51,9 +66,13 @@ export const TeacherLeaveReviewPage: React.FC = () => {
             Review Student Leave Applications
           </h1>
           <Badge variant="primary">Faculty Sanction Workflow</Badge>
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">
+            <ShieldCheck className="w-3 h-3 text-emerald-600" />
+            Scope: {currentStaff.assignedClass}
+          </span>
         </div>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Review leave requests submitted by parents for <strong className="text-slate-800">III Year CSE - B</strong>. Approved leave records are automatically updated in the student's attendance ledger.
+          Review leave requests submitted by parents for class <strong className="text-slate-800">{currentStaff.assignedClass}</strong>. Faculty Advisor: <strong className="text-slate-800">{currentStaff.fullName}</strong>. Approved leave records are automatically updated in the student's attendance ledger.
         </p>
       </div>
 
@@ -69,10 +88,10 @@ export const TeacherLeaveReviewPage: React.FC = () => {
         title={
           <div className="flex items-center gap-2">
             <CheckSquare className="w-4 h-4 text-emerald-600" />
-            <span>Class Leave Applications Ledger</span>
+            <span>Class Leave Applications Ledger ({scopedRequests.length})</span>
           </div>
         }
-        subtitle="Step 9 in the Faculty Demonstration plan: Approve or reject Aarav Kumar's pending leave request"
+        subtitle={`Showing requests strictly scoped to ${currentStaff.assignedClass}`}
       >
         <div className="overflow-x-auto border border-slate-200 rounded-xl">
           <table className="w-full text-left border-collapse text-xs">
@@ -88,85 +107,92 @@ export const TeacherLeaveReviewPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {leaveRequests.map((req) => {
-                const isPending = req.status === 'Pending';
-                const isAarav = req.studentId === 'STU-001';
+              {scopedRequests.length > 0 ? (
+                scopedRequests.map((req) => {
+                  const isPending = req.status === 'Pending';
 
-                return (
-                  <tr
-                    key={req.requestId}
-                    className={`hover:bg-slate-50 transition-colors ${
-                      isPending ? 'bg-amber-50/40 ring-1 ring-amber-200' : ''
-                    }`}
-                  >
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900">{req.requestId}</td>
-                    <td className="py-3 px-4">
-                      <strong className="text-slate-900 block">{req.studentName}</strong>
-                      <span className="text-[11px] text-slate-500">{req.className}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="font-medium text-slate-900 block">
-                        {req.startDate} to {req.endDate}
-                      </span>
-                      <span className="text-[11px] text-slate-500">
-                        {req.totalDays} {req.totalDays === 1 ? 'day' : 'days'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 font-medium text-slate-700">{req.leaveType}</td>
-                    <td className="py-3 px-4">
-                      <p className="text-slate-700 line-clamp-2">{req.reason}</p>
-                      {req.documentName && (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded mt-1 font-medium">
-                          <FileText className="w-3 h-3" />
-                          {req.documentName}
+                  return (
+                    <tr
+                      key={req.requestId}
+                      className={`hover:bg-slate-50 transition-colors ${
+                        isPending ? 'bg-amber-50/40 ring-1 ring-amber-200' : ''
+                      }`}
+                    >
+                      <td className="py-3 px-4 font-mono font-bold text-slate-900">{req.requestId}</td>
+                      <td className="py-3 px-4">
+                        <strong className="text-slate-900 block">{req.studentName}</strong>
+                        <span className="text-[11px] text-slate-500">{req.className}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-medium text-slate-900 block">
+                          {req.startDate} to {req.endDate}
                         </span>
-                      )}
-                      <span className="text-[10px] text-slate-400 block mt-1">
-                        By: {req.submittedBy}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <Badge
-                        variant={
-                          req.status === 'Approved'
-                            ? 'success'
-                            : req.status === 'Pending'
-                            ? 'warning'
-                            : req.status === 'Rejected'
-                            ? 'danger'
-                            : 'neutral'
-                        }
-                      >
-                        {req.status}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {isPending ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleOpenReview(req, 'Approved')}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenReview(req, 'Rejected')}
-                            className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-colors"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-500 italic">
-                          Reviewed ({req.status})
+                        <span className="text-[11px] text-slate-500">
+                          {req.totalDays} {req.totalDays === 1 ? 'day' : 'days'}
                         </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                      <td className="py-3 px-4 font-medium text-slate-700">{req.leaveType}</td>
+                      <td className="py-3 px-4">
+                        <p className="text-slate-700 line-clamp-2">{req.reason}</p>
+                        {req.documentName && (
+                          <span className="inline-flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded mt-1 font-medium">
+                            <FileText className="w-3 h-3" />
+                            {req.documentName}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-slate-400 block mt-1">
+                          By: {req.submittedBy}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <Badge
+                          variant={
+                            req.status === 'Approved'
+                              ? 'success'
+                              : req.status === 'Pending'
+                              ? 'warning'
+                              : req.status === 'Rejected'
+                              ? 'danger'
+                              : 'neutral'
+                          }
+                        >
+                          {req.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {isPending ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenReview(req, 'Approved')}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenReview(req, 'Rejected')}
+                              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-colors"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-500 italic">
+                            Reviewed ({req.status})
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-slate-500">
+                    No leave requests found for class {currentStaff.assignedClass}.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

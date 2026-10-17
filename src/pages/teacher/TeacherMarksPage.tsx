@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApp, matchesAssignedClass } from '../../context/AppContext';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
@@ -10,59 +11,96 @@ import {
   Save,
   Globe,
   AlertTriangle,
-  FileCheck
+  FileCheck,
+  ShieldCheck
 } from 'lucide-react';
 
 export const TeacherMarksPage: React.FC = () => {
   const {
-    currentTeacher,
+    currentStaff,
     students,
     examinations,
     reportCards,
     updateReportCardMarks,
     publishReportCard
   } = useApp();
+  const navigate = useNavigate();
 
-  const cseStudents = students.filter((s) => s.className === 'III Year CSE - B');
+  useEffect(() => {
+    if (!currentStaff) {
+      navigate('/teacher/login');
+    }
+  }, [currentStaff, navigate]);
 
-  const [selectedExamId, setSelectedExamId] = useState<string>('EXAM-MODEL');
-  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('CS3301');
-
-  // Find Aarav's report card for this exam
-  const aaravReport = reportCards.find(
-    (rc) => rc.studentId === 'STU-001' && rc.examId === selectedExamId
+  const scopedStudents = students.filter((s) =>
+    currentStaff ? matchesAssignedClass(s.className, currentStaff.assignedClass) : false
   );
 
-  const [aaravMarks, setAaravMarks] = useState<number>(
-    aaravReport?.subjects.find((s) => s.subjectCode === selectedSubjectCode)?.marksObtained || 93
+  const availableClasses = Array.from(new Set(scopedStudents.map((s) => s.className)));
+  const [selectedClass, setSelectedClass] = useState<string>('');
+
+  useEffect(() => {
+    if (availableClasses.length > 0 && (!selectedClass || !availableClasses.includes(selectedClass))) {
+      setSelectedClass(availableClasses[0]);
+    }
+  }, [availableClasses, selectedClass]);
+
+  const effectiveClass = selectedClass || availableClasses[0] || (currentStaff ? currentStaff.assignedClass : 'CSE-B');
+  const classStudents = scopedStudents.filter((s) => s.className === effectiveClass);
+
+  const [selectedExamId, setSelectedExamId] = useState<string>('EXAM-MODEL');
+
+  // Subjects based on staff department
+  const subjectsList =
+    currentStaff?.department === 'ECE'
+      ? [
+          { subjectCode: 'EC3301', subjectName: 'Signals and Systems' },
+          { subjectCode: 'EC3302', subjectName: 'Digital Electronics' },
+          { subjectCode: 'EC3303', subjectName: 'Analog Circuits' }
+        ]
+      : [
+          { subjectCode: 'CS3301', subjectName: 'Data Structures' },
+          { subjectCode: 'CS3391', subjectName: 'Object Oriented Programming' },
+          { subjectCode: 'MA3354', subjectName: 'Discrete Mathematics' }
+        ];
+
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>(subjectsList[0].subjectCode);
+
+  const firstStudent = classStudents[0];
+  const targetReport = reportCards.find(
+    (rc) => (rc.studentId === firstStudent?.studentId || rc.studentId === 'STU-001') && rc.examId === selectedExamId
+  );
+
+  const [studentMarks, setStudentMarks] = useState<number>(
+    targetReport?.subjects.find((s) => s.subjectCode === selectedSubjectCode)?.marksObtained || 93
   );
 
   const [teacherRemarks, setTeacherRemarks] = useState<string>(
-    aaravReport?.teacherRemarks ||
-      'Aarav shows excellent analytical thinking in Data Structures and DBMS. Consistent lab execution.'
+    targetReport?.teacherRemarks ||
+      'Student demonstrates strong grasp of core fundamentals and analytical problem-solving.'
   );
 
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [savedBanner, setSavedBanner] = useState(false);
 
+  if (!currentStaff) return null;
+
   const currentExam = examinations.find((e) => e.examId === selectedExamId);
   const isCurrentlyPublished = currentExam?.publicationStatus === 'Published';
-
   const maxMarks = selectedExamId === 'EXAM-MODEL' ? 100 : 50;
 
   const handleSaveMarks = () => {
-    if (!aaravReport) return;
+    if (!targetReport) return;
 
-    // Update the subject mark inside aarav's report card
-    const updatedSubjects = aaravReport.subjects.map((s) => {
+    const updatedSubjects = targetReport.subjects.map((s) => {
       if (s.subjectCode === selectedSubjectCode) {
         const grade =
-          aaravMarks >= 91 ? 'O' : aaravMarks >= 81 ? 'A+' : aaravMarks >= 71 ? 'A' : 'B+';
+          studentMarks >= 91 ? 'O' : studentMarks >= 81 ? 'A+' : studentMarks >= 71 ? 'A' : 'B+';
         const gradePoints =
-          aaravMarks >= 91 ? 10 : aaravMarks >= 81 ? 9 : aaravMarks >= 71 ? 8 : 7;
+          studentMarks >= 91 ? 10 : studentMarks >= 81 ? 9 : studentMarks >= 71 ? 8 : 7;
         return {
           ...s,
-          marksObtained: aaravMarks,
+          marksObtained: studentMarks,
           grade: grade as any,
           gradePoints
         };
@@ -70,7 +108,7 @@ export const TeacherMarksPage: React.FC = () => {
       return s;
     });
 
-    updateReportCardMarks(aaravReport.reportCardId, updatedSubjects, teacherRemarks);
+    updateReportCardMarks(targetReport.reportCardId, updatedSubjects, teacherRemarks);
     setSavedBanner(true);
     setTimeout(() => setSavedBanner(false), 4000);
   };
@@ -91,10 +129,14 @@ export const TeacherMarksPage: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Assessment Marks Entry & Publishing
             </h1>
-            <Badge variant="primary">III Year CSE - B</Badge>
+            <Badge variant="primary">{effectiveClass}</Badge>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">
+              <ShieldCheck className="w-3 h-3 text-emerald-600" />
+              Scope: {currentStaff.assignedClass}
+            </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Faculty: <strong className="text-slate-800">{currentTeacher.fullName}</strong> • Subject: CS3301 Data Structures
+            Faculty: <strong className="text-slate-800">{currentStaff.fullName}</strong> • Department of {currentStaff.department}
           </p>
         </div>
 
@@ -123,6 +165,25 @@ export const TeacherMarksPage: React.FC = () => {
       {/* Selectors Bar */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-4">
+          {availableClasses.length > 1 && (
+            <div>
+              <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">
+                Section
+              </label>
+              <select
+                value={effectiveClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-white"
+              >
+                {availableClasses.map((cls) => (
+                  <option key={cls} value={cls}>
+                    {cls}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">
               Select Examination
@@ -149,7 +210,7 @@ export const TeacherMarksPage: React.FC = () => {
               onChange={(e) => setSelectedSubjectCode(e.target.value)}
               className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-white"
             >
-              {currentTeacher.assignedSubjects.map((s) => (
+              {subjectsList.map((s) => (
                 <option key={s.subjectCode} value={s.subjectCode}>
                   {s.subjectCode} — {s.subjectName}
                 </option>
@@ -189,9 +250,9 @@ export const TeacherMarksPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {cseStudents.map((s, idx) => {
-                const isAarav = s.studentId === 'STU-001';
-                const marksVal = isAarav ? aaravMarks : idx === 1 ? 84 : idx === 2 ? 88 : 79;
+              {classStudents.map((s, idx) => {
+                const isTarget = s.studentId === (firstStudent?.studentId || 'STU-001');
+                const marksVal = isTarget ? studentMarks : idx === 1 ? 84 : idx === 2 ? 88 : 79;
                 const grade =
                   marksVal >= 91 ? 'O' : marksVal >= 81 ? 'A+' : marksVal >= 71 ? 'A' : 'B+';
 
@@ -199,28 +260,28 @@ export const TeacherMarksPage: React.FC = () => {
                   <tr
                     key={s.studentId}
                     className={`hover:bg-slate-50 transition-colors ${
-                      isAarav ? 'bg-blue-50/40 ring-1 ring-blue-200' : ''
+                      isTarget ? 'bg-blue-50/40 ring-1 ring-blue-200' : ''
                     }`}
                   >
                     <td className="py-3 px-4 text-center text-slate-400 font-medium">{idx + 1}</td>
                     <td className="py-3 px-4 font-mono font-bold text-slate-900">{s.registerNumber}</td>
                     <td className="py-3 px-4">
                       <strong className="text-slate-900">{s.fullName}</strong>
-                      {isAarav && (
+                      {isTarget && (
                         <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">
-                          Demo Student
+                          Selected Student
                         </span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-center text-slate-600 font-semibold">{maxMarks}</td>
                     <td className="py-3 px-4 text-center">
-                      {isAarav ? (
+                      {isTarget ? (
                         <input
                           type="number"
                           min={0}
                           max={maxMarks}
-                          value={aaravMarks}
-                          onChange={(e) => setAaravMarks(Number(e.target.value))}
+                          value={studentMarks}
+                          onChange={(e) => setStudentMarks(Number(e.target.value))}
                           className="w-20 px-2 py-1 rounded border border-blue-400 bg-blue-50 text-center font-bold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
                         />
                       ) : (
@@ -242,10 +303,10 @@ export const TeacherMarksPage: React.FC = () => {
           </table>
         </div>
 
-        {/* Advisor Remarks for Aarav */}
+        {/* Advisor Remarks */}
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
           <label className="block text-xs font-bold text-slate-800">
-            Class Advisor Remarks for Aarav Kumar:
+            Class Advisor Remarks for {firstStudent?.fullName || 'Student'}:
           </label>
           <textarea
             rows={2}
@@ -301,7 +362,7 @@ export const TeacherMarksPage: React.FC = () => {
           <p>
             {isCurrentlyPublished
               ? 'Unpublishing will hide this report card from parent portals while revisions are being made.'
-              : 'Publishing will make the official Statement of Marks immediately accessible to all parents of III Year CSE - B, and send an automated in-app notification.'}
+              : `Publishing will make the official Statement of Marks immediately accessible to all parents of ${effectiveClass}, and send an automated in-app notification.`}
           </p>
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 font-medium">
             Examination: <strong>{currentExam?.examName}</strong>
