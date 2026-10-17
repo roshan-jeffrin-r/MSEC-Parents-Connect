@@ -21,7 +21,6 @@ export interface Student {
   semester: number;
   academicYear: string;
   dob: string;
-  gender?: 'Male' | 'Female' | 'Other';
   bloodGroup: string;
   mentorName: string;
   parentIds: string[];
@@ -29,50 +28,17 @@ export interface Student {
   batch: string;
   hostelDayScholar: 'Day Scholar' | 'Hostelite';
   busRoute?: string;
-  modeOfTransport?: string;
-  transportReference?: string;
-  studentMobile?: string;
-  studentEmail?: string;
 }
 
 export interface Parent {
   parentId: string;
   fullName: string;
-  fatherName?: string;
-  motherName?: string;
   relationship: 'Father' | 'Mother' | 'Guardian';
   email: string;
   phoneNumber: string;
   linkedStudentIds: string[];
   address: string;
-  city?: string;
-  pincode?: string;
   occupation: string;
-}
-
-export interface StudentOnboardData {
-  registerNumber: string;
-  fullName: string;
-  department: string;
-  className: string;
-  semester: number;
-  dob: string;
-  gender: 'Male' | 'Female' | 'Other';
-  bloodGroup: string;
-  mentorName: string;
-  scholarType: 'Day Scholar' | 'Hostelite';
-  modeOfTransport: string;
-  transportReference: string;
-  studentMobile: string;
-  studentEmail: string;
-  fatherName: string;
-  motherName: string;
-  primaryAccountRelation: 'Father' | 'Mother' | 'Guardian';
-  parentPhone: string;
-  parentEmail: string;
-  residentialAddress: string;
-  city: string;
-  pincode: string;
 }
 
 export interface Teacher {

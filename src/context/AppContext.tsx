@@ -12,8 +12,7 @@ import {
   Announcement,
   AttendanceStatus,
   LeaveStatus,
-  SubjectMark,
-  StudentOnboardData
+  SubjectMark
 } from '../types';
 import {
   INITIAL_STUDENTS,
@@ -45,12 +44,6 @@ interface AppContextType {
   announcements: Announcement[];
   
   // Actions
-  upsertStudentProfile: (data: StudentOnboardData) => {
-    success: boolean;
-    studentId: string;
-    isNew: boolean;
-    message: string;
-  };
   submitLeaveRequest: (data: {
     studentId: string;
     startDate: string;
@@ -95,10 +88,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_STUDENTS;
   });
 
-  const [parents, setParents] = useState<Parent[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}_parents`);
-    return saved ? JSON.parse(saved) : INITIAL_PARENTS;
-  });
+  const [parents] = useState<Parent[]>(INITIAL_PARENTS);
   const [teachers] = useState<Teacher[]>(INITIAL_TEACHERS);
 
   const [examinations, setExaminations] = useState<Examination[]>(() => {
@@ -137,10 +127,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [students]);
 
   useEffect(() => {
-    localStorage.setItem(`${STORAGE_KEY}_parents`, JSON.stringify(parents));
-  }, [parents]);
-
-  useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_examinations`, JSON.stringify(examinations));
   }, [examinations]);
 
@@ -172,150 +158,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const getCurrentFormattedTime = () => {
     const now = new Date();
     return now.toISOString().replace('T', ' ').substring(0, 16);
-  };
-
-  // Upsert Student & Parent Profile (Self-Service Onboarding)
-  const upsertStudentProfile = (data: StudentOnboardData) => {
-    const regNo = data.registerNumber.trim().toUpperCase();
-
-    // Check if student exists by registerNumber or studentId
-    const existingIdx = students.findIndex(
-      (s) => s.registerNumber.toUpperCase() === regNo || s.studentId.toUpperCase() === regNo
-    );
-
-    const isNew = existingIdx < 0;
-    const targetStudentId = isNew ? `STU-${String(students.length + 1).padStart(3, '0')}` : students[existingIdx].studentId;
-    const targetParentId = existingIdx >= 0 && students[existingIdx].parentIds?.[0]
-      ? students[existingIdx].parentIds[0]
-      : `PAR-${targetStudentId}`;
-
-    const deptCode = data.department.includes('CSE') ? 'CSE'
-      : data.department.includes('ECE') ? 'ECE'
-      : data.department.includes('IT') ? 'IT'
-      : data.department.includes('EEE') ? 'EEE'
-      : data.department.includes('MECH') ? 'MECH'
-      : data.department.includes('CIVIL') ? 'CIVIL'
-      : 'ENGG';
-
-    const updatedStudent: Student = {
-      studentId: targetStudentId,
-      registerNumber: regNo,
-      fullName: data.fullName.trim(),
-      department: data.department,
-      departmentCode: deptCode,
-      className: data.className.trim(),
-      section: data.className.split('-')[1]?.trim() || 'A',
-      semester: Number(data.semester),
-      academicYear: existingIdx >= 0 ? students[existingIdx].academicYear : '2026-2027',
-      dob: data.dob,
-      gender: data.gender,
-      bloodGroup: data.bloodGroup,
-      mentorName: data.mentorName.trim() || 'Dr. K. Senthil Kumar',
-      parentIds: [targetParentId],
-      profileImage: existingIdx >= 0
-        ? students[existingIdx].profileImage
-        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
-      batch: existingIdx >= 0 ? students[existingIdx].batch : '2026-2030',
-      hostelDayScholar: data.scholarType,
-      busRoute: data.scholarType === 'Day Scholar' ? data.transportReference : undefined,
-      modeOfTransport: data.modeOfTransport,
-      transportReference: data.transportReference,
-      studentMobile: data.studentMobile,
-      studentEmail: data.studentEmail
-    };
-
-    // Upsert student
-    setStudents((prev) => {
-      if (existingIdx >= 0) {
-        const copy = [...prev];
-        copy[existingIdx] = updatedStudent;
-        return copy;
-      } else {
-        return [...prev, updatedStudent];
-      }
-    });
-
-    // Primary parent account name based on selection
-    const primaryName = data.primaryAccountRelation === 'Father'
-      ? data.fatherName
-      : data.primaryAccountRelation === 'Mother'
-      ? data.motherName
-      : `${data.fatherName || data.motherName || 'Authorized'} (Guardian)`;
-
-    // Upsert parent with bidirectional link
-    setParents((prev) => {
-      const parentIdx = prev.findIndex((p) => p.parentId === targetParentId || p.linkedStudentIds.includes(targetStudentId));
-      const parentRecord: Parent = {
-        parentId: targetParentId,
-        fullName: primaryName.trim(),
-        fatherName: data.fatherName.trim(),
-        motherName: data.motherName.trim(),
-        relationship: data.primaryAccountRelation,
-        email: data.parentEmail.trim(),
-        phoneNumber: data.parentPhone.trim(),
-        linkedStudentIds: parentIdx >= 0
-          ? Array.from(new Set([...prev[parentIdx].linkedStudentIds, targetStudentId]))
-          : [targetStudentId],
-        address: data.residentialAddress.trim(),
-        city: data.city.trim(),
-        pincode: data.pincode.trim(),
-        occupation: parentIdx >= 0 ? prev[parentIdx].occupation : 'Parent / Guardian'
-      };
-
-      if (parentIdx >= 0) {
-        const pCopy = [...prev];
-        pCopy[parentIdx] = parentRecord;
-        return pCopy;
-      } else {
-        return [...prev, parentRecord];
-      }
-    });
-
-    // Seed muster attendance if new student
-    if (isNew) {
-      setAttendance((prev) => [
-        {
-          attendanceId: `ATT-${Date.now()}-${targetStudentId}`,
-          studentId: targetStudentId,
-          date: '2026-10-17',
-          status: 'present',
-          arrivalTime: '08:24 AM',
-          recordedBy: updatedStudent.mentorName,
-          updatedAt: '2026-10-17 08:30 AM',
-          notes: 'Enrolled in academic database.'
-        },
-        ...prev
-      ]);
-    }
-
-    // Activate this student in the portal
-    setSelectedStudentId(targetStudentId);
-
-    // Create system notification
-    const timeNow = getCurrentFormattedTime();
-    setNotifications((prev) => [
-      {
-        notificationId: `NOTIF-${Date.now()}`,
-        recipientId: targetParentId,
-        studentId: targetStudentId,
-        title: isNew ? 'Student Profile Registered' : 'Student Records Verified',
-        message: `Profile data for ${updatedStudent.fullName} (${regNo}) has been updated. Registered parent contact: ${data.parentPhone}.`,
-        category: 'general',
-        readStatus: false,
-        createdAt: timeNow,
-        actionUrl: '/profile'
-      },
-      ...prev
-    ]);
-
-    return {
-      success: true,
-      studentId: targetStudentId,
-      isNew,
-      message: isNew
-        ? `Student ${updatedStudent.fullName} (${regNo}) successfully onboarded and linked to parent account!`
-        : `Official profile and parent contact records for ${updatedStudent.fullName} (${regNo}) successfully updated!`
-    };
   };
 
   // Submit Leave Request
@@ -592,7 +434,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Reset to Demo Defaults
   const resetToDemoDefaults = () => {
     localStorage.removeItem(`${STORAGE_KEY}_students`);
-    localStorage.removeItem(`${STORAGE_KEY}_parents`);
     localStorage.removeItem(`${STORAGE_KEY}_examinations`);
     localStorage.removeItem(`${STORAGE_KEY}_reportCards`);
     localStorage.removeItem(`${STORAGE_KEY}_attendance`);
@@ -601,7 +442,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem(`${STORAGE_KEY}_announcements`);
 
     setStudents(INITIAL_STUDENTS);
-    setParents(INITIAL_PARENTS);
     setExaminations(INITIAL_EXAMINATIONS);
     setReportCards(INITIAL_REPORT_CARDS);
     setAttendance(INITIAL_ATTENDANCE);
@@ -630,7 +470,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         leaveRequests,
         notifications,
         announcements,
-        upsertStudentProfile,
         submitLeaveRequest,
         cancelLeaveRequest,
         reviewLeaveRequest,

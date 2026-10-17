@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
@@ -14,8 +13,7 @@ import {
   Bus,
   ShieldCheck,
   Award,
-  BookOpen,
-  UserPlus
+  BookOpen
 } from 'lucide-react';
 
 export const ProfilePage: React.FC = () => {
@@ -24,26 +22,16 @@ export const ProfilePage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Student & Parent Profile
-            </h1>
-            <Badge variant="primary">Verified Institutional Record</Badge>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Official enrollment credentials and contact information registered with MSEC Academic Office
-          </p>
+      <div>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            Student & Parent Profile
+          </h1>
+          <Badge variant="primary">Verified Institutional Record</Badge>
         </div>
-
-        <Link
-          to={`/onboard?regNo=${currentStudent.registerNumber}`}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs self-start sm:self-auto"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Update via Onboarding</span>
-        </Link>
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          Official enrollment credentials and contact information registered with MSEC Academic Office
+        </p>
       </div>
 
       {/* Grid: Student Card & Parent Card */}
