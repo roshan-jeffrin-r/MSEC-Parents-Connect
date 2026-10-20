@@ -12,7 +12,8 @@ import {
   Globe,
   AlertTriangle,
   FileCheck,
-  ShieldCheck
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 
 export const TeacherMarksPage: React.FC = () => {
@@ -98,6 +99,7 @@ export const TeacherMarksPage: React.FC = () => {
           studentMarks >= 91 ? 'O' : studentMarks >= 81 ? 'A+' : studentMarks >= 71 ? 'A' : 'B+';
         const gradePoints =
           studentMarks >= 91 ? 10 : studentMarks >= 81 ? 9 : studentMarks >= 71 ? 8 : 7;
+
         return {
           ...s,
           marksObtained: studentMarks,
@@ -121,21 +123,21 @@ export const TeacherMarksPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Assessment Marks Entry & Publishing
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Assessment Marks Entry &amp; Publishing
             </h1>
             <Badge variant="primary">{effectiveClass}</Badge>
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-2 py-0.5 rounded-md">
               <ShieldCheck className="w-3 h-3 text-emerald-600" />
               Scope: {currentStaff.assignedClass}
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Faculty: <strong className="text-slate-800">{currentStaff.fullName}</strong> • Department of {currentStaff.department}
           </p>
         </div>
@@ -144,36 +146,37 @@ export const TeacherMarksPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setShowPublishModal(true)}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs ${
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs self-start sm:self-auto ${
             isCurrentlyPublished
               ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300'
               : 'bg-emerald-600 hover:bg-emerald-700 text-white'
           }`}
         >
-          <Globe className="w-4 h-4" />
+          <Globe className="w-3.5 h-3.5" />
           <span>{isCurrentlyPublished ? 'Unpublish from Parents' : 'Publish Report Cards'}</span>
         </button>
       </div>
 
       {savedBanner && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+        <div className="p-3 bg-emerald-50 border border-emerald-200/80 rounded-xl text-emerald-950 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in shadow-2xs">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>Marks and report card status successfully updated! Reflected in parent digital report cards.</span>
         </div>
       )}
 
       {/* Selectors Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-4">
+      <div className="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {availableClasses.length > 1 && (
             <div>
-              <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">
+              <label htmlFor="marks-section" className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
                 Section
               </label>
               <select
+                id="marks-section"
                 value={effectiveClass}
                 onChange={(e) => setSelectedClass(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-white"
+                className="px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 {availableClasses.map((cls) => (
                   <option key={cls} value={cls}>
@@ -185,13 +188,14 @@ export const TeacherMarksPage: React.FC = () => {
           )}
 
           <div>
-            <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">
+            <label htmlFor="marks-exam" className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
               Select Examination
             </label>
             <select
+              id="marks-exam"
               value={selectedExamId}
               onChange={(e) => setSelectedExamId(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-white"
+              className="px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               {examinations.map((ex) => (
                 <option key={ex.examId} value={ex.examId}>
@@ -202,13 +206,14 @@ export const TeacherMarksPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold uppercase text-slate-400 mb-0.5">
+            <label htmlFor="marks-course" className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
               Course / Subject
             </label>
             <select
+              id="marks-course"
               value={selectedSubjectCode}
               onChange={(e) => setSelectedSubjectCode(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-white"
+              className="px-2.5 py-1 rounded-lg border border-slate-300 text-xs font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               {subjectsList.map((s) => (
                 <option key={s.subjectCode} value={s.subjectCode}>
@@ -220,7 +225,7 @@ export const TeacherMarksPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant={isCurrentlyPublished ? 'success' : 'warning'}>
+          <Badge variant={isCurrentlyPublished ? 'success' : 'warning'} dot>
             Status: {isCurrentlyPublished ? 'Published to Parents' : 'Draft / Grading in Progress'}
           </Badge>
         </div>
@@ -228,25 +233,32 @@ export const TeacherMarksPage: React.FC = () => {
 
       {/* Marks Entry Table */}
       <Card
+        density="compact"
+        noPadding
         title={
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-purple-600" />
             <span>Class Marks Entry Register (Max Marks: {maxMarks})</span>
           </div>
         }
-        subtitle="Enter or adjust marks for students. Edits update the student's GPA, percentage, and report card transcript."
+        subtitle="Enter or adjust marks. Calculated grades and CGPA update live in the parent portal."
       >
-        <div className="overflow-x-auto border border-slate-200 rounded-xl mb-4">
-          <table className="w-full text-left border-collapse text-xs">
+        <div
+          className="table-wrapper"
+          tabIndex={0}
+          role="region"
+          aria-label="Class marks register table"
+        >
+          <table className="compact-table w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                <th className="py-3 px-4 w-14 text-center">S.No</th>
-                <th className="py-3 px-4 w-32">Register No</th>
-                <th className="py-3 px-4">Student Name</th>
-                <th className="py-3 px-4 w-32 text-center">Max Marks</th>
-                <th className="py-3 px-4 w-40 text-center">Marks Obtained</th>
-                <th className="py-3 px-4 w-28 text-center">Calculated Grade</th>
-                <th className="py-3 px-4 w-28 text-center">Result</th>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                <th className="w-12 text-center">S.No</th>
+                <th className="w-32">Register No</th>
+                <th>Student Profile</th>
+                <th className="w-28 text-center">Max Marks</th>
+                <th className="w-36 text-center">Marks Obtained</th>
+                <th className="w-28 text-center">Calculated Grade</th>
+                <th className="w-24 text-center">Result</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -259,22 +271,31 @@ export const TeacherMarksPage: React.FC = () => {
                 return (
                   <tr
                     key={s.studentId}
-                    className={`hover:bg-slate-50 transition-colors ${
-                      isTarget ? 'bg-blue-50/40 ring-1 ring-blue-200' : ''
+                    className={`hover:bg-slate-50/70 transition-colors ${
+                      isTarget ? 'bg-blue-50/30 ring-1 ring-blue-100' : ''
                     }`}
                   >
-                    <td className="py-3 px-4 text-center text-slate-400 font-medium">{idx + 1}</td>
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900">{s.registerNumber}</td>
-                    <td className="py-3 px-4">
-                      <strong className="text-slate-900">{s.fullName}</strong>
-                      {isTarget && (
-                        <span className="ml-2 text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">
-                          Selected Student
-                        </span>
-                      )}
+                    <td className="text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                    <td className="font-mono font-bold text-slate-900">{s.registerNumber}</td>
+                    <td>
+                      <div className="flex items-center gap-2 py-0.5">
+                        <img
+                          src={s.profileImage}
+                          alt={s.fullName}
+                          className="w-6 h-6 rounded-full object-cover ring-1 ring-slate-200"
+                        />
+                        <div>
+                          <strong className="text-slate-900 block font-semibold">{s.fullName}</strong>
+                          {isTarget && (
+                            <span className="text-[9px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.2 rounded">
+                              Selected Student
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
-                    <td className="py-3 px-4 text-center text-slate-600 font-semibold">{maxMarks}</td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="text-center text-slate-600 font-mono font-semibold">{maxMarks}</td>
+                    <td className="text-center">
                       {isTarget ? (
                         <input
                           type="number"
@@ -282,18 +303,18 @@ export const TeacherMarksPage: React.FC = () => {
                           max={maxMarks}
                           value={studentMarks}
                           onChange={(e) => setStudentMarks(Number(e.target.value))}
-                          className="w-20 px-2 py-1 rounded border border-blue-400 bg-blue-50 text-center font-bold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                          className="w-16 px-2 py-0.5 rounded border border-blue-400 bg-blue-50/80 text-center font-bold text-slate-900 text-xs focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono"
                         />
                       ) : (
-                        <span className="font-semibold text-slate-800">{marksVal}</span>
+                        <span className="font-semibold text-slate-800 font-mono">{marksVal}</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="text-center">
                       <Badge variant="primary" size="sm">
                         Grade {grade}
                       </Badge>
                     </td>
-                    <td className="py-3 px-4 text-center font-semibold text-emerald-700">
+                    <td className="text-center font-bold text-emerald-700 text-[11px]">
                       PASS
                     </td>
                   </tr>
@@ -303,28 +324,29 @@ export const TeacherMarksPage: React.FC = () => {
           </table>
         </div>
 
-        {/* Advisor Remarks */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-          <label className="block text-xs font-bold text-slate-800">
+        {/* Advisor Remarks Card in Footer */}
+        <div className="p-3 bg-slate-50/70 border-t border-slate-200 space-y-2.5">
+          <label htmlFor="advisor-remarks" className="block text-xs font-bold text-slate-800">
             Class Advisor Remarks for {firstStudent?.fullName || 'Student'}:
           </label>
           <textarea
+            id="advisor-remarks"
             rows={2}
             value={teacherRemarks}
             onChange={(e) => setTeacherRemarks(e.target.value)}
-            className="w-full p-2.5 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white"
+            className="w-full p-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400"
           />
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-slate-400">
-              Remarks appear directly on the parent's printable report card.
+              Remarks appear directly on the student's printable report card.
             </span>
             <button
               type="button"
               onClick={handleSaveMarks}
-              className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs flex items-center gap-1.5"
             >
               <Save className="w-3.5 h-3.5" />
-              <span>Save & Calculate GPA</span>
+              <span>Save &amp; Calculate GPA</span>
             </button>
           </div>
         </div>
@@ -340,14 +362,14 @@ export const TeacherMarksPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowPublishModal(false)}
-              className="px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-100"
+              className="px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleTogglePublish}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold shadow-xs ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-2xs ${
                 isCurrentlyPublished
                   ? 'bg-amber-600 hover:bg-amber-700 text-white'
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -361,10 +383,10 @@ export const TeacherMarksPage: React.FC = () => {
         <div className="space-y-3 text-xs text-slate-700 leading-relaxed">
           <p>
             {isCurrentlyPublished
-              ? 'Unpublishing will hide this report card from parent portals while revisions are being made.'
-              : `Publishing will make the official Statement of Marks immediately accessible to all parents of ${effectiveClass}, and send an automated in-app notification.`}
+              ? 'Unpublishing will hide this report card from parent portals while revisions are being finalized.'
+              : `Publishing will make the official Statement of Marks immediately accessible to all parents of ${effectiveClass}, and broadcast an in-app notification.`}
           </p>
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 font-medium">
+          <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 font-medium">
             Examination: <strong>{currentExam?.examName}</strong>
           </div>
         </div>

@@ -7,6 +7,9 @@ interface CardProps {
   subtitle?: React.ReactNode;
   action?: React.ReactNode;
   headerBorder?: boolean;
+  density?: 'compact' | 'normal';
+  accent?: 'blue' | 'emerald' | 'amber' | 'rose' | 'indigo' | 'slate' | 'none';
+  noPadding?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -15,28 +18,46 @@ export const Card: React.FC<CardProps> = ({
   title,
   subtitle,
   action,
-  headerBorder = true
+  headerBorder = true,
+  density = 'compact',
+  accent = 'none',
+  noPadding = false
 }) => {
+  const accentBorderStyles = {
+    none: '',
+    blue: 'border-t-2 border-t-blue-600',
+    emerald: 'border-t-2 border-t-emerald-600',
+    amber: 'border-t-2 border-t-amber-500',
+    rose: 'border-t-2 border-t-rose-600',
+    indigo: 'border-t-2 border-t-indigo-600',
+    slate: 'border-t-2 border-t-slate-700'
+  };
+
+  const headerPadding = density === 'compact' ? 'px-4 py-3' : 'px-5 py-4';
+  const bodyPadding = noPadding ? '' : density === 'compact' ? 'p-4' : 'p-5';
+
   return (
-    <div className={`bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden transition-all duration-150 ${className}`}>
+    <div
+      className={`bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden transition-all duration-150 ${accentBorderStyles[accent]} ${className}`}
+    >
       {(title || subtitle || action) && (
         <div
-          className={`px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${
-            headerBorder ? 'border-b border-slate-100 bg-slate-50/50' : ''
+          className={`${headerPadding} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 ${
+            headerBorder ? 'border-b border-slate-100 bg-slate-50/60' : ''
           }`}
         >
-          <div>
+          <div className="min-w-0">
             {title && (
-              <h3 className="text-base font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight flex items-center gap-2 truncate">
                 {title}
               </h3>
             )}
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-[11px] text-slate-500 mt-0.5 truncate">{subtitle}</p>}
           </div>
           {action && <div className="flex items-center gap-2 shrink-0">{action}</div>}
         </div>
       )}
-      <div className="p-5">{children}</div>
+      <div className={bodyPadding}>{children}</div>
     </div>
   );
 };

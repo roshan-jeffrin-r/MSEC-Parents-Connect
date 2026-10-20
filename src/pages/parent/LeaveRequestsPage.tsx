@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
+import { Modal } from '../../components/common/Modal';
 import { LeaveType } from '../../types';
 import {
   Send,
@@ -14,7 +15,8 @@ import {
   Upload,
   Info,
   Check,
-  ChevronDown
+  ChevronDown,
+  Trash2
 } from 'lucide-react';
 
 export const LeaveRequestsPage: React.FC = () => {
@@ -34,6 +36,7 @@ export const LeaveRequestsPage: React.FC = () => {
   const [documentName, setDocumentName] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [cancellingRequestId, setCancellingRequestId] = useState<string | null>(null);
 
   // Form submission with modern-web-guidance
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +44,6 @@ export const LeaveRequestsPage: React.FC = () => {
 
     const form = e.currentTarget;
     if (!form.checkValidity()) {
-      // Modern-web-guidance: sync aria-invalid on attempted submit
       const inputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea');
       inputs.forEach((input) => {
         if (!input.checkValidity()) {
@@ -72,12 +74,10 @@ export const LeaveRequestsPage: React.FC = () => {
       setReason('');
       setDocumentName('');
 
-      // Auto clear success message after 6 seconds
       setTimeout(() => setSuccessMessage(''), 6000);
-    }, 400);
+    }, 300);
   };
 
-  // Sync aria-invalid on blur adhering to modern-web-guidance
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const el = e.target;
     if (el.checkValidity) {
@@ -97,20 +97,25 @@ export const LeaveRequestsPage: React.FC = () => {
   };
 
   // Filter requests for the parent view
-  const myRequests = leaveRequests.filter((r) => r.studentId === currentStudent.studentId || r.studentId === studentId);
+  const myRequests = leaveRequests.filter(
+    (r) => r.studentId === currentStudent.studentId || r.studentId === studentId
+  );
+
+  const selectedStudentObj = students.find((s) => s.studentId === studentId) || currentStudent;
+  const advisorName = selectedStudentObj.mentorName || 'Class Advisor';
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-5">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
               Leave Request Management
             </h1>
             <Badge variant="primary">Official Sanction Workflow</Badge>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-0.5">
             Submit formal leave applications for faculty mentor review and track status updates
           </p>
         </div>
@@ -118,9 +123,9 @@ export const LeaveRequestsPage: React.FC = () => {
 
       {/* Success Notification Banner */}
       {successMessage && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 flex items-center justify-between gap-3 animate-in fade-in">
-          <div className="flex items-center gap-2.5 text-xs font-semibold">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 flex items-center justify-between gap-2.5 animate-in fade-in">
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{successMessage}</span>
           </div>
           <button
@@ -133,23 +138,23 @@ export const LeaveRequestsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Grid: Leave Request Form & Quick Policy Guidance */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Grid: Leave Request Form & Policy Guidance */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
         {/* Left 2 Cols: Form */}
         <div className="lg:col-span-2">
           <Card
             title={
               <div className="flex items-center gap-2">
                 <Send className="w-4 h-4 text-blue-600" />
-                <span>Submit New Leave Application</span>
+                <span>Submit Leave Application</span>
               </div>
             }
             subtitle="Applications are routed directly to the student's assigned Class Advisor"
           >
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate={false}>
+            <form onSubmit={handleSubmit} className="space-y-3.5" noValidate={false}>
               {/* Student Selection */}
               <div>
-                <label htmlFor="student-select" className="block text-xs font-semibold text-slate-800 mb-1">
+                <label htmlFor="student-select" className="block text-xs font-bold text-slate-800 mb-1">
                   Student Name <span className="text-rose-500">*</span>
                 </label>
                 <select
@@ -159,7 +164,7 @@ export const LeaveRequestsPage: React.FC = () => {
                   onChange={(e) => setStudentId(e.target.value)}
                   onBlur={handleBlur}
                   onInput={handleInput}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                   {students.slice(0, 2).map((s) => (
                     <option key={s.studentId} value={s.studentId}>
@@ -169,30 +174,33 @@ export const LeaveRequestsPage: React.FC = () => {
                 </select>
               </div>
 
-              {/* Leave Type & Duration Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label htmlFor="leave-type" className="block text-xs font-semibold text-slate-800 mb-1">
-                    Leave Type <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    id="leave-type"
-                    required
-                    value={leaveType}
-                    onChange={(e) => setLeaveType(e.target.value as LeaveType)}
-                    onBlur={handleBlur}
-                    onInput={handleInput}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-                  >
-                    <option value="Medical">Medical Leave</option>
-                    <option value="Personal">Personal / Family</option>
-                    <option value="Family Emergency">Family Emergency</option>
-                    <option value="Other">Other Duty / Event</option>
-                  </select>
+              {/* Leave Type Selector Pills */}
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  Leave Category <span className="text-rose-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {(['Medical', 'Personal', 'Family Emergency', 'Other'] as LeaveType[]).map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setLeaveType(type)}
+                      className={`py-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all border ${
+                        leaveType === type
+                          ? 'bg-blue-50 border-blue-600 text-blue-900 shadow-2xs font-bold'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
+              {/* Duration Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="start-date" className="block text-xs font-semibold text-slate-800 mb-1">
+                  <label htmlFor="start-date" className="block text-xs font-bold text-slate-800 mb-1">
                     Start Date <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -203,12 +211,12 @@ export const LeaveRequestsPage: React.FC = () => {
                     onChange={(e) => setStartDate(e.target.value)}
                     onBlur={handleBlur}
                     onInput={handleInput}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="end-date" className="block text-xs font-semibold text-slate-800 mb-1">
+                  <label htmlFor="end-date" className="block text-xs font-bold text-slate-800 mb-1">
                     End Date <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -220,35 +228,35 @@ export const LeaveRequestsPage: React.FC = () => {
                     onChange={(e) => setEndDate(e.target.value)}
                     onBlur={handleBlur}
                     onInput={handleInput}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
               </div>
 
               {/* Reason for Leave */}
               <div>
-                <label htmlFor="reason" className="block text-xs font-semibold text-slate-800 mb-1">
+                <label htmlFor="reason" className="block text-xs font-bold text-slate-800 mb-1">
                   Reason for Absence <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   id="reason"
                   required
-                  rows={3}
+                  rows={2}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   onBlur={handleBlur}
                   onInput={handleInput}
                   placeholder="Provide specific details regarding the reason for leave..."
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400"
+                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400"
                 />
               </div>
 
-              {/* Supporting Document Attachment (Optional) */}
+              {/* Supporting Document Attachment */}
               <div>
-                <label className="block text-xs font-semibold text-slate-800 mb-1">
-                  Supporting Document (e.g. Doctor's Note / Medical Certificate)
+                <label className="block text-xs font-bold text-slate-800 mb-1">
+                  Supporting Document (Optional Doctor Note / Medical Prescription)
                 </label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => {
@@ -260,20 +268,21 @@ export const LeaveRequestsPage: React.FC = () => {
                       const selected = mockFiles[Math.floor(Math.random() * mockFiles.length)];
                       setDocumentName(selected);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
                   >
                     <Upload className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Attach Sample Document</span>
+                    <span>Attach Sample Medical Certificate</span>
                   </button>
 
                   {documentName && (
-                    <div className="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-                      <FileText className="w-3.5 h-3.5" />
-                      <span className="font-medium truncate max-w-[200px]">{documentName}</span>
+                    <div className="flex items-center gap-1.5 text-xs text-blue-800 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+                      <FileText className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="font-semibold truncate max-w-[200px]">{documentName}</span>
                       <button
                         type="button"
                         onClick={() => setDocumentName('')}
                         className="text-slate-400 hover:text-slate-600 font-bold ml-1"
+                        title="Remove attachment"
                       >
                         ×
                       </button>
@@ -283,17 +292,17 @@ export const LeaveRequestsPage: React.FC = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="pt-2 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
-                  Submission will notify the class advisor immediately.
+              <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+                <span className="text-[10px] text-slate-400">
+                  Submitting will notify advisor {advisorName} immediately.
                 </span>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-1"
+                  className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>{isSubmitting ? 'Submitting...' : 'Submit Leave Request'}</span>
+                  <span>{isSubmitting ? 'Submitting...' : 'Submit Application'}</span>
                 </button>
               </div>
             </form>
@@ -306,28 +315,34 @@ export const LeaveRequestsPage: React.FC = () => {
             title={
               <div className="flex items-center gap-2">
                 <Info className="w-4 h-4 text-amber-600" />
-                <span>Approval Rules</span>
+                <span>Sanction Guidelines</span>
               </div>
             }
           >
-            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
-              <div className="p-3 bg-blue-50/70 border border-blue-200/60 rounded-xl">
-                <strong className="text-blue-900 block font-semibold mb-1">Notice on Attendance Impact</strong>
-                Submitting a leave request does <strong>not</strong> automatically mark the student as present or on-leave. Official leave is reflected in the attendance ledger only after the Class Advisor issues formal sanction.
+            <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed">
+              <div className="p-2.5 bg-blue-50/70 border border-blue-200/80 rounded-xl">
+                <strong className="text-blue-900 block font-bold text-xs mb-0.5">Muster Ledger Notice</strong>
+                <p className="text-[11px] text-blue-950">
+                  Leave requests do not automatically count as attendance. Physical presence criteria (&ge; 75%) must be maintained for semester exams.
+                </p>
               </div>
 
               <div>
-                <strong className="text-slate-900 block font-medium">Medical Absences (&gt; 2 Days)</strong>
-                A valid medical certificate issued by a registered medical practitioner (RMP) must be produced within 3 working days of resumption.
+                <strong className="text-slate-900 block font-semibold text-xs">Medical Absences (&gt; 2 Days)</strong>
+                <p className="text-[11px] text-slate-600 mt-0.5">
+                  A registered medical certificate must be produced to the advisor within 3 days of return.
+                </p>
               </div>
 
               <div>
-                <strong className="text-slate-900 block font-medium">Examination Conflicts</strong>
-                Leave during internal assessment or model examinations requires prior written sanction from the Head of Department.
+                <strong className="text-slate-900 block font-semibold text-xs">Internal Examinations</strong>
+                <p className="text-[11px] text-slate-600 mt-0.5">
+                  Leave during assessments requires prior written approval from Head of Department.
+                </p>
               </div>
 
               <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-                Class Advisor: <strong className="text-slate-700">Dr. K. Senthil Kumar</strong> (CSE Dept)
+                Assigned Advisor: <strong className="text-slate-800">{advisorName}</strong>
               </div>
             </div>
           </Card>
@@ -339,23 +354,29 @@ export const LeaveRequestsPage: React.FC = () => {
         title={
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-slate-700" />
-            <span>Leave Application History & Status</span>
+            <span>Leave Application History & Status Ledger ({myRequests.length})</span>
           </div>
         }
-        subtitle="All historical and pending leave submissions for your children"
+        subtitle="Historical and pending leave submissions for your children"
+        noPadding
       >
-        <div className="overflow-x-auto border border-slate-200 rounded-xl">
-          <table className="w-full text-left border-collapse text-xs">
+        <div className="table-wrapper">
+          <table
+            role="region"
+            aria-label="Leave applications history"
+            tabIndex={0}
+            className="compact-table"
+          >
             <thead>
               <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                <th className="py-3 px-4 w-28">Request ID</th>
-                <th className="py-3 px-4 w-32">Student</th>
-                <th className="py-3 px-4 w-40">Leave Dates</th>
-                <th className="py-3 px-4 w-32">Type</th>
-                <th className="py-3 px-4">Reason & Attachment</th>
-                <th className="py-3 px-4 w-28 text-center">Status</th>
-                <th className="py-3 px-4 w-52">Reviewer Remarks</th>
-                <th className="py-3 px-3 w-20 text-center">Action</th>
+                <th className="w-24 text-left">Request ID</th>
+                <th className="w-32 text-left">Student</th>
+                <th className="w-36 text-left">Leave Duration</th>
+                <th className="w-24 text-left">Category</th>
+                <th className="text-left">Stated Reason & Docs</th>
+                <th className="w-24 text-center">Status</th>
+                <th className="w-44 text-left">Advisor Remarks</th>
+                <th className="w-16 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -368,30 +389,30 @@ export const LeaveRequestsPage: React.FC = () => {
               ) : (
                 myRequests.map((req) => (
                   <tr key={req.requestId} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900">{req.requestId}</td>
-                    <td className="py-3 px-4">
-                      <span className="font-semibold text-slate-800 block">{req.studentName}</span>
-                      <span className="text-[10px] text-slate-400">{req.className}</span>
+                    <td className="font-mono font-bold text-slate-900">{req.requestId}</td>
+                    <td>
+                      <span className="font-semibold text-slate-800 block leading-tight">{req.studentName}</span>
+                      <span className="text-[10px] text-slate-500 font-mono">{req.className}</span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="font-medium text-slate-900 block">
+                    <td>
+                      <span className="font-medium text-slate-900 block leading-tight font-mono text-[11px]">
                         {req.startDate} to {req.endDate}
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[10px] text-slate-500">
                         {req.totalDays} {req.totalDays === 1 ? 'day' : 'days'}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-medium text-slate-700">{req.leaveType}</td>
-                    <td className="py-3 px-4">
-                      <p className="text-slate-700 line-clamp-2">{req.reason}</p>
+                    <td className="font-semibold text-slate-700">{req.leaveType}</td>
+                    <td>
+                      <p className="text-slate-700 line-clamp-1">{req.reason}</p>
                       {req.documentName && (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded mt-1">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200 mt-0.5">
                           <FileText className="w-3 h-3" />
                           {req.documentName}
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="text-center">
                       <Badge
                         variant={
                           req.status === 'Approved'
@@ -402,28 +423,29 @@ export const LeaveRequestsPage: React.FC = () => {
                             ? 'danger'
                             : 'neutral'
                         }
+                        size="xs"
                       >
                         {req.status}
                       </Badge>
                     </td>
-                    <td className="py-3 px-4 text-[11px] text-slate-600">
+                    <td className="text-[11px] text-slate-600">
                       {req.reviewerRemarks ? (
                         <div>
-                          <p className="italic">"{req.reviewerRemarks}"</p>
+                          <p className="italic leading-snug">"{req.reviewerRemarks}"</p>
                           <span className="text-[10px] text-slate-400 mt-0.5 block">
-                            — {req.reviewerName || 'Class Advisor'}
+                            — {req.reviewerName || 'Advisor'}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-400 italic">Awaiting faculty review</span>
+                        <span className="text-slate-400 italic">Awaiting review</span>
                       )}
                     </td>
-                    <td className="py-3 px-3 text-center">
+                    <td className="text-center">
                       {req.status === 'Pending' ? (
                         <button
                           type="button"
-                          onClick={() => cancelLeaveRequest(req.requestId)}
-                          className="text-[11px] font-semibold text-rose-600 hover:text-rose-800 transition-colors"
+                          onClick={() => setCancellingRequestId(req.requestId)}
+                          className="text-[11px] font-bold text-rose-600 hover:text-rose-800 transition-colors"
                         >
                           Cancel
                         </button>
@@ -438,6 +460,40 @@ export const LeaveRequestsPage: React.FC = () => {
           </table>
         </div>
       </Card>
+
+      {/* Cancel Confirmation Modal */}
+      {cancellingRequestId && (
+        <Modal
+          isOpen={!!cancellingRequestId}
+          onClose={() => setCancellingRequestId(null)}
+          title="Confirm Leave Application Withdrawal"
+          footer={
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setCancellingRequestId(null)}
+                className="px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50"
+              >
+                Keep Application
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  cancelLeaveRequest(cancellingRequestId);
+                  setCancellingRequestId(null);
+                }}
+                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-xs"
+              >
+                Withdraw Request
+              </button>
+            </div>
+          }
+        >
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Are you sure you want to withdraw leave application <strong>{cancellingRequestId}</strong>? This action cannot be undone and the class advisor will be updated.
+          </p>
+        </Modal>
+      )}
     </div>
   );
 };

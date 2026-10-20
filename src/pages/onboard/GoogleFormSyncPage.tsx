@@ -133,17 +133,17 @@ export const GoogleFormSyncPage: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               Google Form Data Auto-Sorter &amp; Sibling Linker
             </h1>
             <Badge variant="primary">Onboarding Engine</Badge>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Import Google Forms survey data, auto-sort by batch &amp; class, assign advisors, and link siblings into unified parent profiles
           </p>
         </div>
@@ -157,7 +157,7 @@ export const GoogleFormSyncPage: React.FC = () => {
               setParsedPreview(parseCSV(SAMPLE_GOOGLE_FORM_CSV));
               setSyncResult(null);
             }}
-            className="px-3.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border border-blue-200"
+            className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors border border-blue-200"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Load Sample CSV</span>
@@ -170,7 +170,7 @@ export const GoogleFormSyncPage: React.FC = () => {
               setParsedPreview(SAMPLE_GOOGLE_FORM_JSON);
               setSyncResult(null);
             }}
-            className="px-3.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Load Sample JSON</span>
@@ -180,22 +180,22 @@ export const GoogleFormSyncPage: React.FC = () => {
 
       {/* Sync Result Banner */}
       {syncResult && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-950 text-xs space-y-2 animate-in fade-in">
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-emerald-950 text-xs space-y-2 animate-in fade-in shadow-2xs">
           <div className="flex items-center gap-2 font-bold text-sm text-emerald-900">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>{syncResult.message}</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-200/80 font-medium text-emerald-800">
-            <div>Students Synced: <strong>{syncResult.studentsAdded}</strong></div>
-            <div>Unique Families: <strong>{syncResult.familiesCount}</strong></div>
-            <div>Siblings Linked: <strong>{syncResult.siblingsLinkedCount}</strong></div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-200/80 font-medium text-emerald-800 text-[11px]">
+            <div>Students Synced: <strong className="font-mono text-emerald-950">{syncResult.studentsAdded}</strong></div>
+            <div>Unique Families: <strong className="font-mono text-emerald-950">{syncResult.familiesCount}</strong></div>
+            <div>Siblings Linked: <strong className="font-mono text-emerald-950">{syncResult.siblingsLinkedCount}</strong></div>
             <div>Assigned Advisors: <strong>Dr. Kavitha Menon &amp; Prof. S. Ramesh</strong></div>
           </div>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
+        <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
           <span>{errorMsg}</span>
         </div>
@@ -203,6 +203,7 @@ export const GoogleFormSyncPage: React.FC = () => {
 
       {/* Input / Upload Box */}
       <Card
+        density="compact"
         title={
           <div className="flex items-center gap-2">
             <FileSpreadsheet className="w-4 h-4 text-blue-600" />
@@ -211,64 +212,64 @@ export const GoogleFormSyncPage: React.FC = () => {
         }
         subtitle="Expected fields: registerNumber, fullName, department, className, semester, batch, parentName, relation, parentPhone, parentEmail"
         action={
-          <div className="flex items-center gap-2">
-            <label className="cursor-pointer px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-              <Upload className="w-3.5 h-3.5" />
-              <span>Upload CSV / JSON</span>
-              <input type="file" accept=".csv,.json" onChange={handleFileUpload} className="hidden" />
-            </label>
-          </div>
+          <label className="cursor-pointer px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors">
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload File</span>
+            <input type="file" accept=".csv,.json" onChange={handleFileUpload} className="hidden" />
+          </label>
         }
       >
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <div className="flex items-center gap-3 text-xs">
-            <span className="font-semibold text-slate-700">Format:</span>
-            <label className="flex items-center gap-1.5 cursor-pointer font-medium">
+            <span className="font-bold text-slate-700 text-[11px] uppercase tracking-wider">Format:</span>
+            <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-800">
               <input
                 type="radio"
                 name="format"
                 value="csv"
                 checked={inputFormat === 'csv'}
                 onChange={() => setInputFormat('csv')}
+                className="text-blue-600 focus:ring-blue-500"
               />
               <span>CSV (Comma-Separated)</span>
             </label>
-            <label className="flex items-center gap-1.5 cursor-pointer font-medium">
+            <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-800">
               <input
                 type="radio"
                 name="format"
                 value="json"
                 checked={inputFormat === 'json'}
                 onChange={() => setInputFormat('json')}
+                className="text-blue-600 focus:ring-blue-500"
               />
               <span>JSON (Array of Objects)</span>
             </label>
           </div>
 
           <textarea
-            rows={7}
+            rows={5}
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
             placeholder="Paste your CSV or JSON data here..."
-            className="w-full p-3 font-mono text-xs text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full p-2.5 font-mono text-[11px] text-slate-800 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
 
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={handleParse}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Parse &amp; Analyze Sibling Links</span>
+              <span>Parse &amp; Analyze</span>
             </button>
 
             <button
               type="button"
               onClick={handleCommitSync}
-              className="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2"
+              className="px-4 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-2xs flex items-center gap-1.5 transition-colors"
             >
-              <Database className="w-4 h-4" />
+              <Database className="w-3.5 h-3.5" />
               <span>Commit &amp; Sync to Portal Database</span>
             </button>
           </div>
@@ -278,6 +279,8 @@ export const GoogleFormSyncPage: React.FC = () => {
       {/* Sibling Linker & Sorting Preview */}
       {parsedPreview.length > 0 && (
         <Card
+          density="compact"
+          noPadding
           title={
             <div className="flex items-center gap-2">
               <LinkIcon className="w-4 h-4 text-emerald-600" />
@@ -286,16 +289,21 @@ export const GoogleFormSyncPage: React.FC = () => {
           }
           subtitle="Auto-sorted by batch -> className -> fullName. Students sharing parent phone or email are unified."
         >
-          <div className="overflow-x-auto border border-slate-200 rounded-xl">
-            <table className="w-full text-left border-collapse text-xs">
+          <div
+            className="table-wrapper"
+            tabIndex={0}
+            role="region"
+            aria-label="Google Form parsed records table"
+          >
+            <table className="compact-table w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-100 text-slate-800 font-bold border-b border-slate-200">
-                  <th className="py-2.5 px-3">Batch &amp; Class</th>
-                  <th className="py-2.5 px-3">Reg No</th>
-                  <th className="py-2.5 px-3">Student Name</th>
-                  <th className="py-2.5 px-3">Assigned Advisor</th>
-                  <th className="py-2.5 px-3">Parent Name &amp; Phone</th>
-                  <th className="py-2.5 px-3 text-center">Sibling Link Status</th>
+                <tr className="bg-slate-50 text-slate-800 font-bold border-b border-slate-200">
+                  <th className="w-28">Batch &amp; Class</th>
+                  <th className="w-28">Reg No</th>
+                  <th>Student Name</th>
+                  <th className="w-40">Assigned Advisor</th>
+                  <th className="w-56">Parent Name &amp; Contact</th>
+                  <th className="w-32 text-center">Sibling Link Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -310,28 +318,28 @@ export const GoogleFormSyncPage: React.FC = () => {
                   return (
                     <tr
                       key={rec.registerNumber}
-                      className={`hover:bg-slate-50 transition-colors ${
-                        isSibling ? 'bg-blue-50/40' : ''
+                      className={`hover:bg-slate-50/70 transition-colors ${
+                        isSibling ? 'bg-blue-50/30' : ''
                       }`}
                     >
-                      <td className="py-2.5 px-3 font-semibold text-slate-700">
-                        <span className="block">{rec.className}</span>
-                        <span className="text-[10px] text-slate-400 font-normal">{rec.batch} • Sem {rec.semester}</span>
+                      <td>
+                        <strong className="block text-slate-800">{rec.className}</strong>
+                        <span className="text-[10px] text-slate-400 font-mono">{rec.batch} • Sem {rec.semester}</span>
                       </td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{rec.registerNumber}</td>
-                      <td className="py-2.5 px-3 font-medium text-slate-900">{rec.fullName}</td>
-                      <td className="py-2.5 px-3">
-                        <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-800 border border-slate-200">
+                      <td className="font-mono font-bold text-slate-900">{rec.registerNumber}</td>
+                      <td className="font-semibold text-slate-900">{rec.fullName}</td>
+                      <td>
+                        <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-800 border border-slate-200/80">
                           {advisor}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3">
-                        <strong className="text-slate-800 block">{rec.parentName} ({rec.relation})</strong>
-                        <span className="text-[11px] text-slate-500">{rec.parentPhone} • {rec.parentEmail}</span>
+                      <td>
+                        <strong className="text-slate-900 block font-semibold">{rec.parentName} <span className="font-normal text-slate-500 text-[11px]">({rec.relation})</span></strong>
+                        <span className="text-[10px] text-slate-500 font-mono">{rec.parentPhone} • {rec.parentEmail}</span>
                       </td>
-                      <td className="py-2.5 px-3 text-center">
+                      <td className="text-center">
                         {isSibling ? (
-                          <Badge variant="success" size="sm">
+                          <Badge variant="success" size="sm" dot>
                             Linked ({siblingGroups[key].length} Siblings)
                           </Badge>
                         ) : (
