@@ -10,12 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Smartphone,
-  MessageSquare,
-  FileSpreadsheet,
-  X,
-  Zap,
-  RotateCcw
+  X
 } from 'lucide-react';
 
 interface AlertSidebarProps {

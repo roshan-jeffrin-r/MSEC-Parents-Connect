@@ -9,17 +9,8 @@ import { AttendanceNotificationJob, NotificationChannel } from '../../types/atte
 import {
   Bell,
   Search,
-  Filter,
   Send,
-  RotateCcw,
-  CheckCircle2,
-  AlertCircle,
-  Smartphone,
-  MessageSquare,
-  Clock,
-  ExternalLink,
-  ShieldCheck,
-  RefreshCw
+  CheckCircle2
 } from 'lucide-react';
 
 export const NotificationCenterPage: React.FC = () => {

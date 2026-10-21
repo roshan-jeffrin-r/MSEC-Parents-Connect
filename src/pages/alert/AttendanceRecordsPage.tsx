@@ -10,16 +10,9 @@ import { AlertDetailModal } from '../../components/notification/AlertDetailModal
 import {
   CalendarCheck,
   Search,
-  Filter,
   Plus,
   Upload,
   Clock,
-  User,
-  Smartphone,
-  MessageSquare,
-  AlertTriangle,
-  RotateCcw,
-  CheckCircle2,
   Trash2
 } from 'lucide-react';
 import { AttendanceNotificationJob } from '../../types/attendanceAlert';
