@@ -1,0 +1,27 @@
+name: msec_parent_connect
+description: "MSEC Parent Connect - Mobile Prototype Application for Meenakshi Sundararajan Engineering College"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.10+1
+  table_calendar: ^3.1.2
+  google_fonts: ^6.2.1
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/msec_calendar.json
+    - assets/images/hero.png
